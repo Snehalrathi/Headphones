@@ -10,17 +10,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.ListView;
 
 import com.example.rachit.headphones.data.HeadphoneContract;
-import com.example.rachit.headphones.data.HeadphoneDbHelper;
+import com.example.rachit.headphones.data.HeadphoneCursorAdapter;
 
 public class MainActivity extends AppCompatActivity {
 
-    private HeadphoneDbHelper mDbHelper;
+    private HeadphoneCursorAdapter mCursorAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -33,13 +35,42 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mDbHelper = new HeadphoneDbHelper(this);
+        String[] projection = {HeadphoneContract.HeadphoneEntry._ID,
+                HeadphoneContract.HeadphoneEntry.COLUMN_HPHONE_NAME,
+                HeadphoneContract.HeadphoneEntry.COLUMN_HPHONE_DESCRIPTION,
+                HeadphoneContract.HeadphoneEntry.COLUMN_HPHONE_QUANTITY,
+                HeadphoneContract.HeadphoneEntry.COLUMN_HPHONE_PRICE};
 
-        displayDatabaseInfo();
+        // Find ListView to populate
+        ListView petListView = (ListView) findViewById(R.id.list);
+
+        // Find and set empty view on the ListView, so that it only shows when the list has 0 items.
+        //View emptyView = findViewById(R.id.empty_view);
+        //petListView.setEmptyView(emptyView);
+
+        // Setup cursor adapter using cursor from last step
+        Cursor cursor = getContentResolver().query(HeadphoneContract.HeadphoneEntry.CONTENT_URI, projection, null, null, null);
+        mCursorAdapter = new HeadphoneCursorAdapter(this, cursor);
+        // Attach cursor adapter to the ListView
+        petListView.setAdapter(mCursorAdapter);
+
+/*        petListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(MainActivity.this, EditorActivity.class);
+                Uri currentPetUri = ContentUris.withAppendedId(HeadphoneContract.HeadphoneEntry.CONTENT_URI, id);
+                intent.setData(currentPetUri);
+                startActivity(intent);
+            }
+        });*/
+
+        //mDbHelper = new HeadphoneDbHelper(this);
+
+        //displayDatabaseInfo();
 
     }
 
-    private void displayDatabaseInfo() {
+    /*private void displayDatabaseInfo() {
 
         String [] projection = {HeadphoneContract.HeadphoneEntry._ID,
                 HeadphoneContract.HeadphoneEntry.COLUMN_HPHONE_NAME,
@@ -75,9 +106,9 @@ public class MainActivity extends AppCompatActivity {
             cursor.close();
         }
 
-    }
+    }*/
 
-    public void insertPet(){
+    public void insertPet() {
 
         ContentValues mNewValues = new ContentValues();
 
@@ -87,15 +118,15 @@ public class MainActivity extends AppCompatActivity {
         mNewValues.put(HeadphoneContract.HeadphoneEntry.COLUMN_HPHONE_QUANTITY, 4);
         mNewValues.put(HeadphoneContract.HeadphoneEntry.COLUMN_HPHONE_PRICE, 380);
 
-        Uri mNewUri = getContentResolver().insert(HeadphoneContract.HeadphoneEntry.CONTENT_URI,mNewValues);
+        Uri mNewUri = getContentResolver().insert(HeadphoneContract.HeadphoneEntry.CONTENT_URI, mNewValues);
 
     }
 
-    @Override
+/*    @Override
     protected void onStart() {
         super.onStart();
         displayDatabaseInfo();
-    }
+    }*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -111,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_insert_dummy_data:
                 insertPet();
-                displayDatabaseInfo();
+                //displayDatabaseInfo();
                 return true;
 
             case R.id.action_delete_all_entries:

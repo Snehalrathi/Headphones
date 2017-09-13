@@ -25,4 +25,8 @@
     <string name="unit_headphone_price">Rs</string>
 
     <string name="action_save">Save</string>
+
+    <string name="empty_view_title_text">It\'s a bit lonely here...</string>
+
+    <string name="empty_view_subtitle_text">Get started by adding a Headphone</string>
 </resources>
